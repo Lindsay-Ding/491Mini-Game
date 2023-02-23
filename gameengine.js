@@ -25,6 +25,8 @@ class GameEngine {
         this.ctx = ctx;
         this.startInput();
         this.timer = new Timer();
+        this.gameDisplay = new GameDisplay(this);
+        this.gameDisplay.init(ctx);
     };
 
     start() {
@@ -72,8 +74,48 @@ class GameEngine {
             this.rightclick = getXandY(e);
         });
 
-        this.ctx.canvas.addEventListener("keydown", event => this.keys[event.key] = true);
-        this.ctx.canvas.addEventListener("keyup", event => this.keys[event.key] = false);
+        // this.ctx.canvas.addEventListener("keydown", event => this.keys[event.key] = true);
+        this.ctx.canvas.addEventListener('keydown', e => {
+            let gd = this.gameDisplay;
+            let currentX = gd.playerX;
+            let maxX = Math.floor(gd.maxWidth / 60) - 1;
+            switch (e.code) {
+                case 'ArrowLeft':
+                    if (currentX > 0)
+                        gd.playerX--;
+                    break;
+                case 'ArrowRight':
+                    if (currentX < maxX)
+                        gd.playerX++;
+                    break;
+                case 'Space':
+                    console.log("key: ", e.code);
+                    // playerX tells you what index we are in
+                    if (gd.holdingPiece === 0) {
+                        console.log(gd.state);
+                        for (let i = 9; i >= 0; i--) {
+                            if (gd.state[i][gd.playerX] !== 0) {
+                                gd.holdingPiece = gd.state[i][gd.playerX];
+                                gd.state[i][gd.playerX] = 0;
+                                break;
+                            }
+                        }
+                    } else { // throw piece back
+                        for (let i = 0; i < 10; i++) {
+                            if (gd.state[i][gd.playerX] === 0) {
+                                gd.state[i][gd.playerX] = gd.holdingPiece;
+                                gd.matchingAlgorithm(i, gd.playerX);
+                                break;
+                            }
+                        }
+                        gd.holdingPiece = 0;
+                    }
+                    this.draw();
+                    break;
+                default:
+                    break;
+            }
+        })
     };
 
     addEntity(entity) {
@@ -83,6 +125,8 @@ class GameEngine {
     draw() {
         // Clear the whole canvas with transparent color (rgba(0, 0, 0, 0))
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        console.log("draw happened here!!!");
+        this.gameDisplay.draw();
 
         // Draw latest things first
         for (let i = this.entities.length - 1; i >= 0; i--) {
@@ -115,5 +159,3 @@ class GameEngine {
     };
 
 };
-
-// KV Le was here :)
