@@ -81,35 +81,52 @@ class GameEngine {
             let maxX = Math.floor(gd.maxWidth / 60) - 1;
             switch (e.code) {
                 case 'ArrowLeft':
-                    if (currentX > 0)
-                        gd.playerX--;
+                    if (currentX > 0) gd.playerX--;
                     break;
                 case 'ArrowRight':
-                    if (currentX < maxX)
-                        gd.playerX++;
+                    if (currentX < maxX) gd.playerX++;
                     break;
                 case 'Space':
-                    console.log("key: ", e.code);
-                    // playerX tells you what index we are in
-                    if (gd.holdingPiece === 0) {
-                        console.log(gd.state);
+                   // console.log("key: ", e.code);
+                    if (gd.currentColor === 0) {
+                        console.log(gd.matrix);
                         for (let i = 9; i >= 0; i--) {
-                            if (gd.state[i][gd.playerX] !== 0) {
-                                gd.holdingPiece = gd.state[i][gd.playerX];
-                                gd.state[i][gd.playerX] = 0;
-                                break;
+                            if (gd.pieceCount === 0 && gd.matrix[i][gd.playerX] !== 0) {
+                                gd.currentColor = gd.matrix[i][gd.playerX];
+                                gd.matrix[i][gd.playerX] = 0;
+                                gd.pieceCount++;
                             }
-                        }
-                    } else { // throw piece back
+                       } 
+                    } else { 
                         for (let i = 0; i < 10; i++) {
-                            if (gd.state[i][gd.playerX] === 0) {
-                                gd.state[i][gd.playerX] = gd.holdingPiece;
-                                gd.matchingAlgorithm(i, gd.playerX);
+                            if (gd.matrix[i][gd.playerX] === 0) {
+                                gd.matrix[i][gd.playerX] = gd.currentColor;
+                                gd.eliminateCircles(i, gd.playerX);
                                 break;
                             }
                         }
-                        gd.holdingPiece = 0;
+                        gd.currentColor = 0;
+                        gd.pieceCount = 0;
                     }
+                    // while (true) {
+                    //     let i = 9;
+                    //     if (gd.pieceCount === 0) {
+                    //         if (gd.matrix[i][gd.playerX] !== 0) {
+                    //             gd.currentColor = gd.matrix[i][gd.playerX];
+                    //             gd.matrix[i][gd.playerX] = 0;
+                    //             gd.pieceCount++;
+                    //         } else {
+                    //             i--;
+                    //         }
+                    //     } else if (gd.pieceCount > 0) {
+                    //         if (gd.matrix[i][gd.playerX] == gd.currentColor) {
+                    //             gd.matrix[i][gd.playerX] = 0;
+                    //             gd.pieceCount++;
+                    //             if (gd.pieceCount > 1) break;
+                    //         }
+                    //     }
+
+                    // }
                     this.draw();
                     break;
                 default:
